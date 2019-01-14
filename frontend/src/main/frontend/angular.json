@@ -1,0 +1,185 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "agens-web13": {
+      "root": "",
+      "sourceRoot": "src",
+      "projectType": "application",
+      "prefix": "app",
+      "schematics": {
+        "@schematics/angular:component": {
+          "styleext": "scss"
+        }
+      },
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "../../../target/frontend",
+            "index": "src/index.html",
+            "main": "src/main.ts",
+            "polyfills": "src/polyfills.ts",
+            "tsConfig": "src/tsconfig.app.json",
+            "assets": [
+              "src/assets"
+            ],
+            "styles": [
+              "src/styles.scss",
+              "node_modules/codemirror/lib/codemirror.css",
+              "node_modules/codemirror/addon/fold/foldgutter.css",
+              "node_modules/codemirror/addon/dialog/dialog.css",
+              "node_modules/codemirror/theme/idea.css"
+            ],
+            "scripts": [
+              "node_modules/jquery/dist/jquery.min.js",
+              "node_modules/lodash/lodash.min.js",
+
+              "node_modules/codemirror/lib/codemirror.js",
+              "src/assets/js/cm-cypher.js",
+              "node_modules/codemirror/mode/python/python.js",
+              "node_modules/codemirror/addon/selection/active-line.js",
+              "node_modules/codemirror/addon/search/searchcursor.js",
+              "node_modules/codemirror/addon/search/search.js",
+              "node_modules/codemirror/addon/dialog/dialog.js",
+              "node_modules/codemirror/addon/edit/matchbrackets.js",
+              "node_modules/codemirror/addon/edit/closebrackets.js",
+              "node_modules/codemirror/addon/comment/comment.js",
+              "node_modules/codemirror/addon/wrap/hardwrap.js",
+              "node_modules/codemirror/addon/fold/foldcode.js",
+              "node_modules/codemirror/addon/fold/brace-fold.js",
+              "node_modules/codemirror/mode/javascript/javascript.js",
+              "node_modules/codemirror/keymap/sublime.js",
+
+              "node_modules/d3/dist/d3.min.js",
+              "node_modules/d3-tip/dist/index.js",
+              "node_modules/moment/min/moment.min.js",
+              "node_modules/watermark/dist/jquery.watermark.min.js",
+              "node_modules/file-saver/FileSaver.min.js",
+
+              "node_modules/cytoscape/dist/cytoscape.min.js",
+              "node_modules/cytoscape-automove/cytoscape-automove.js",
+              "node_modules/cytoscape-canvas/dist/cytoscape-canvas.js",
+              "node_modules/cytoscape-cxtmenu/cytoscape-cxtmenu.js",
+              "node_modules/cytoscape-panzoom/cytoscape-panzoom.js",
+              "node_modules/cytoscape-undo-redo/cytoscape-undo-redo.js",
+              "node_modules/cytoscape-view-utilities/cytoscape-view-utilities.js",
+              "node_modules/cytoscape-edgehandles/cytoscape-edgehandles.js",
+              "src/assets/js/jquery.qtip.min.js",
+              "node_modules/cytoscape-qtip/cytoscape-qtip.js",
+              
+              "node_modules/webcola/WebCola/cola.min.js",
+              "node_modules/cytoscape-cola/cytoscape-cola.js",
+              "node_modules/cytoscape-cose-bilkent/cytoscape-cose-bilkent.js",
+              "node_modules/dagre/dist/dagre.js",
+              "node_modules/cytoscape-dagre/cytoscape-dagre.js",
+              "node_modules/cytoscape-euler/cytoscape-euler.js",
+              "node_modules/cytoscape-expand-collapse/cytoscape-expand-collapse.js",
+              "node_modules/klayjs/klay.js",
+              "node_modules/cytoscape-klay/cytoscape-klay.js",
+
+              "src/assets/js/cytoscape-markov-cluster.js",
+              "src/assets/js/agens-graph.js"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "agens-web13:build",
+            "host": "127.0.0.1",
+            "port": 8084
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "agens-web13:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "agens-web13:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "src/test.ts",
+            "polyfills": "src/polyfills.ts",
+            "tsConfig": "src/tsconfig.spec.json",
+            "karmaConfig": "src/karma.conf.js",
+            "styles": [
+              "src/styles.scss"
+            ],
+            "scripts": [],
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ]
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "src/tsconfig.app.json",
+              "src/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "agens-web13-e2e": {
+      "root": "e2e/",
+      "projectType": "application",
+      "architect": {
+        "e2e": {
+          "builder": "@angular-devkit/build-angular:protractor",
+          "options": {
+            "protractorConfig": "e2e/protractor.conf.js",
+            "devServerTarget": "agens-web13:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "agens-web13:serve:production"
+            }
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": "e2e/tsconfig.e2e.json",
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "defaultProject": "agens-web13"
+}

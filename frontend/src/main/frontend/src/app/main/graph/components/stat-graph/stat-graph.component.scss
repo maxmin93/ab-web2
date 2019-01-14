@@ -1,0 +1,66 @@
+.sidebar { top: 1.25rem; right: 1.25rem; width: 23rem; }
+.subtit { font-size: .8rem; color: #525252; margin-top: .5rem; }
+
+table { 
+  border: 1px solid #ddd; 
+  border-collapse: collapse; 
+  margin-top: 1rem; 
+}
+
+thead { background: #f2f2f2; }
+
+th, td { 
+  min-width: 68px; 
+  padding: .5rem 0; 
+  border: 1px solid #ddd; 
+  text-align: center; 
+  font-size: .825rem; 
+  color: #242424; 
+}
+
+.bar{
+  fill: steelblue;
+}
+.bar:hover{
+  fill: brown;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}

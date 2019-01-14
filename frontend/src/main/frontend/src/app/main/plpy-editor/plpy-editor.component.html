@@ -1,0 +1,124 @@
+<div id="top" class="content row">
+
+    <div class="col flex-1 mr20" id="pythonList">
+        <div class="col card flex-1 mb20">
+            <div class="card-header">
+                <h4 class="row row-m"><mat-icon class="mr10">list_alt</mat-icon>PL/Python <strong>Functions List</strong></h4>
+            </div>
+            <div class="card-content">
+                <div #progressBar style='visibility:hidden; z-index: 10; width: 100%;'>
+                    <mat-progress-bar color="accent" mode="indeterminate">Loading...</mat-progress-bar>
+                </div>
+                <ngx-datatable #tablePlpy class="material flex-1"
+                    [columnMode]="'force'" [limit]="10"
+                    [rows]='tablePlpyRows' [columns]="tablePlpyColumns"
+                    [headerHeight]="40" [footerHeight]="40" [rowHeight]="40"
+                    [selected]="selected" [selectionType]="'single'" (select)='onSelect($event)'
+                    >
+                </ngx-datatable>
+            </div>
+        </div>
+        <div class="card" style="padding-bottom: 0">
+            <form class="col">
+                <mat-form-field class="flex-1">
+                    <textarea matInput placeholder="SQL Messages" readonly="true" row="auto" mat-autosize="false"
+                    [value]="sqlMessage"></textarea>
+                </mat-form-field>
+            </form>
+        </div>
+    </div>
+
+    <div id="dashboard-canvas" class="row card flex-1 card-space-no">
+        <div class="col flex-1 p20">
+            <div class="card-header row row-space row-m">
+                <h4 class="row row-m"><mat-icon class="mr10">keyboard</mat-icon>PL/Python <strong>Editor</strong></h4>
+            </div>
+            <div class="card-content">
+                <!-- CodeMirror: Python editor -->
+                <form novalidate [formGroup]="procFormGrp" class="col flex-1">
+                    <div class="row">
+                      <mat-form-field class="flex-1">
+                          <input matInput placeholder="Name" [formControl]="procNameCtl" required />
+                          <!-- <input matInput formControlName="name" placeholder="Name" required /> -->
+                          <mat-error *ngIf="procNameCtl.hasError('pattern') || procNameCtl.hasError('required')">
+                          Name has to <strong>start [a-zA-Z] char and length is 3~50</strong>
+                          </mat-error>
+                      </mat-form-field>
+
+                      <mat-form-field class="flex-1 ml20">
+                          <mat-select [formControl]="procLangCtl" placeholder="Language" required>
+                          <!-- <mat-select formControlName="lang" placeholder="Language" required> -->
+                            <mat-option *ngFor="let lang of pglangs" [value]="lang">
+                              {{lang}}
+                            </mat-option>
+                          </mat-select>
+                      </mat-form-field>
+                    </div>
+
+
+                    <mat-form-field>
+                      <input matInput [formControl]="procArgsCtl" placeholder="Arguments &lt;name,type&gt;" />
+                      <!-- <input matInput formControlName="args_type" placeholder="Arguments &lt;name,type&gt;" /> -->
+                      <mat-error *ngIf="procArgsCtl.hasError('pattern')">
+                      Wrong arguments pattern: ex) a integer, b integer
+                      </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field>
+                      <input matInput [formControl]="procRtnCtl" placeholder="Return &lt;type&gt;" />
+                      <!-- <input matInput formControlName="rtn_type" placeholder="Return &lt;type&gt;" /> -->
+                    </mat-form-field>
+
+                    <mat-form-field>
+                      <textarea matInput [formControl]="procDescCtl" placeholder="Leave a comment" mat-autosize="false"></textarea>
+                      <!-- <textarea matInput formControlName="desc" placeholder="Leave a comment" mat-autosize="false"></textarea> -->
+                      <mat-error *ngIf="procDescCtl.hasError('maxlength')">
+                          Length of description has to be less than {{ MAX_DESC_SIZE }}
+                      </mat-error>
+                    </mat-form-field>
+
+                    <div class="col flex-1 mt20 border">
+                      <textarea id="plpy-editor" #plpyEditor type="text" name="plpy" class=""></textarea>
+                    </div>
+
+                    <mat-error class="mt30 pt20 border-top" *ngIf="editor.getValue().trim().length == 0">
+                      <span class="property-name error mr15">Error</span> Source must be not empty!
+                    </mat-error>
+                </form>
+            </div>
+        </div>
+        <div class="box-view">
+            <div class="box-scroll">
+                <div class="box-content">
+                    <div class="btn-group btn-group-v">
+                        <a class="btn btn-icon" matTooltip="New" (click)="newPlpy()" matTooltipPosition="before"><mat-icon>create_outline</mat-icon></a>
+                        <a class="btn btn-icon" matTooltip="Save" (click)="savePlpy()" matTooltipPosition="before"><mat-icon>save_outline</mat-icon></a>
+                        <a class="btn btn-icon" matTooltip="Delete" (click)="deletePlpy()" matTooltipPosition="before"><mat-icon>delete</mat-icon></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="col strech card">
+            <div class="col strech" id="schemaList">
+                <h4>
+                    <div class="row-start"><mat-icon class="m-r-10">info</mat-icon> <h4>PL/Python <strong>Help</strong></h4></div>
+                </h4>
+                <span class="block sub-title m-10 p-10">AgensGraph can support PL/Python. User can make custom-functions</span>
+                <ul class="list">
+                    <li class="row-center p-no">
+                        <div class="row-center">
+                            <span class="subtitle">Find Topic</span>
+                        </div>
+                        <div> xxx </div>
+                    </li>
+                    <li class="row-center p-no">
+                        <div class="row-center">
+                            <span class="subtitle">Contents</span>
+                        </div>
+                        <div> yyy </div>
+                    </li>
+                </ul>
+            </div>
+        </div>  -->
+    </div>
+</div>

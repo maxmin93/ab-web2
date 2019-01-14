@@ -1,0 +1,58 @@
+## config context path to "/" by setting an empty string
+server:
+  port: 8085
+
+logging:
+  config: classpath:logback-agens.xml
+
+spring:
+  pid:
+    file: agensbrowser.pid
+  main:
+    banner-mode: "off"
+  resources:
+    cache:
+      period: 3600
+    static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/
+  servlet:
+    multipart:                  ## MULTIPART (MultipartProperties)
+      enabled: true             # Enable multipart uploads
+      file-size-threshold: 2KB  # Threshold after which files are written to disk.
+      max-file-size: 200MB      # Max file size.
+      max-request-size: 215MB   # Max Request Size
+
+agens:
+  api:
+    base-path: /api
+    query-timeout: 600000       # 1000 ms = 1 sec
+  jwt:
+    header: Authorization       # not used
+    secret: agensBrowserKey
+    expiration: 43200           # unit: sec (12 Hour = 43200 sec)
+  inner:
+    datasource:
+      driverClassName: org.h2.Driver
+      url: jdbc:h2:file:./agens-h2;DB_CLOSE_DELAY=-1;MODE=MySQL
+      username: sa
+      password:
+  outer:
+    datasource:
+      driverClassName: org.postgresql.Driver
+      url: jdbc:postgresql://127.0.0.1:5432/northwind?ApplicationName=AgensBrowser
+      graph_path: northwind_graph
+      username: agraph
+      password: agraph
+      max-rows: 1000
+  file:
+    download-dir: ./downloads   # for image file, etc..
+    upload-dir: ./uploads       # for Graphson, Graphml, etc.. (not yet support EXCEL)
+  client:
+    mode: prod                  # mode : dev or prod
+    guest-key: agens            # url middle-value for report output
+    animation-enabled: true     # to use animation at applying layout
+    title-shown: false          # to show node title by default
+  product:
+    name: AgensBrowser-web
+    version: 2.0
+    hello-msg: AgensBrowser web v2.0 (since 2018-12-17)
+

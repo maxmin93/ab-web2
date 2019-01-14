@@ -1,0 +1,11 @@
+.sidebar { width: 21.875rem; top: 1.25rem; right: 1.25rem; }
+
+
+a.adisabled {
+  cursor: not-allowed;
+  opacity: .65;
+}
+
+a.adisabled:hover { text-decoration: none; }
+a.adisabled:focus { text-decoration: none; }
+a.adisabled:active { text-decoration: none; }

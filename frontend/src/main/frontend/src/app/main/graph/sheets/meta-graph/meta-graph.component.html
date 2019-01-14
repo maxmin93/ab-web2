@@ -1,0 +1,106 @@
+<!-- GRAPH -->
+<div id="searchInRslt" class="col flex-1">
+    <div id="progressBarMetaGraph" #progressBar style='visibility:hidden; z-index: 10; width: 100%;'>
+        <mat-progress-bar color="accent" mode="indeterminate">Loading...</mat-progress-bar>
+    </div>
+
+    <!-- Graph content -->
+    <div class="col flex-1 p20">
+        <div class="row row-m row-space">
+            <!-- <ul class="sheet btn-group">
+                <li><a class="btn btn-link" (click)="close()" matTooltip="Close" matTooltipPosition="above">
+                    <mat-icon>close</mat-icon></a></li>
+            </ul> -->
+            <div class="dialog-tit">
+                <span><mat-icon>search</mat-icon></span>
+                <h4>Search in <strong>Result</strong></h4>
+            </div>
+        </div>
+        <div class="row flex-1 mt10">
+            <div class="row flex-2 mr20">
+                <div class="col flex-1">
+                    <!-- graph canvas -->
+                    <div id="meta-canvas" class="graph-canvas flex-1 border" #divCanvas></div>
+                    <nav>
+                    <!-- 출력상자 : 상세 정보 -->
+                    <ng-container *ngIf="!!selectedElement">
+                        <div id="slide-toggle" class="sidebar col">
+                            <h4>Label <strong>info.</strong></h4>
+                            <ul class="property-list col flex-1 mt10">
+                                <li class="row row-m row-space"><span>Label</span> {{ selectedElement.data('label') }} [count={{ selectedElement.data('size') }}]</li>
+                                <li class="row row-m row-space"><span>Name</span> {{ selectedElement.data('props')['name'] }}</li>
+                                <li class="col flex-1">
+                                    <span class="row row-m row-space mb5">Properties <span>({{selectedProps.length}})</span></span>
+                                    <div class="json-box flex-1 p-no" *ngIf="selectedProps">
+                                        <!-- <form [formGroup]="formGrp" (ngSubmit)="submitFormGroup()"> -->
+                                        <form [formGroup]="formGrp" class="label-info-slide">
+                                            <label class="row row-m row-space p10 border-bottom" formArrayName="conditions" *ngFor="let prop of formGrp.controls.conditions.controls; let i = index">
+                                                {{ selectedProps[i] }} ({{ getPropType(selectedProps[i]) | lowercase }}) <input type="checkbox" [formControlName]="i"> 
+                                            </label>
+                                        </form>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div class="btn-group side-l mt10 row-r">
+                                <button mat-flat-button color="primary" (click)="addItemGroupBy()"
+                                  [ngClass]="{ 'adisabled': selectedElement.data('label') != 'nodes' }">+ Group</button>
+                                <button mat-flat-button color="primary" (click)="addItemFilterBy()">+ Filter</button>
+                                <!-- <button mat-stroked-button color="primary" (click)="resetChecked()"><mat-icon>refresh</mat-icon></button>   -->
+                                <button mat-stroked-button color="primary" (click)="resetChecked()">Refresh</button>  
+                            </div>
+                        </div>
+                    </ng-container>
+                    </nav>
+                </div>
+                
+            </div>    
+            <div class="col flex-1">
+                <div class="col flex-1">
+                    <h5 class="meta-tit"><strong>filter By List </strong></h5>
+                    <div *ngIf="filterByList" class="flex-1 border overflow-y">
+                        <ul>
+                            <li *ngFor="let item of filterByList; let i = index" class="border-bottom p20 col">
+                                <div class="row row-m row-space">
+                                    <div>
+                                        <span class="sub-title">{{ item.label }}</span>
+                                        <p>{{ item.prop }} <span>({{ item.type | lowercase }})</span></p>
+                                    </div>
+                                    <button class="btn btn-icon btn-fill primary" (click)="removeItemFilterBy(i)"><mat-icon>delete_outline</mat-icon></button>
+                                </div>
+                                <div class="row mt10 mb10">
+                                    <div class="flex-1">                             
+                                        <select name="fOper" [(ngModel)]="item.oper" class="flex-1">
+                                            <option *ngFor="let oper of filterOpers" [value]="oper">{{ oper }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="ml20 flex-1">                                      
+                                        <input class="flex-1 border-bottom" flex-1name="fValue" [(ngModel)]="item.value" required type="text">
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col flex-1 mt20">
+                    <h5 class="meta-tit"><strong>groupBy List</strong></h5>
+                    <div class="border flex-1 overflow-y" *ngIf="groupByList">
+                        <ul>
+                            <li *ngFor="let item of groupByList; let i = index" class="row row-m row-space p20 border-bottom">
+                                <div>
+                                    <span class="sub-title">{{ item.label }}</span> 
+                                    <p title= "{{ item.prop }}" > {{ item.prop }} <span>({{ item.type | lowercase }})</span></p>
+                                </div>
+                                <button class="btn btn-icon btn-fill" (click)="removeItemGroupBy(i)"><mat-icon>delete_outline</mat-icon></button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col mt20">
+                    <button class="flex-1" mat-raised-button color="primary" [disabled]="groupByList.length == 0 && filterByList.length == 0"
+                    (click)="close()">Reload</button>
+                </div>                
+            </div>   
+        </div>
+             
+    </div>
+</div>

@@ -1,0 +1,99 @@
+.on-btn {
+  background-color: '#585858';
+  color: '#eee';
+}
+
+.off-btn {
+  background-color: '#eee';
+  color: '#585858';
+}
+
+#slide-toggle .tit { font-size: .825rem; color: #aaa; }
+
+#slide-toggle small { 
+  display: inline-block; 
+  line-height: 18px; 
+  margin-top: .5rem; 
+  color: #aaa; 
+}
+
+#graphCard { overflow: hidden; }
+
+.find-cycles li { 
+  margin-top: .5rem; 
+  border-radius: 2px; 
+  overflow: hidden;
+  cursor: pointer; 
+}
+
+.find-cycles li:hover { background: #f2f2f2; }
+
+.find-cycles li:first-child { margin-top: 0; }
+
+.find-cycles li span { 
+  background: #005aa8; 
+  display: flex; 
+  align-items: center; 
+  padding: .425rem; 
+}
+
+.find-cycles li span mat-icon { color: #fff; }
+
+.find-cycles li p { 
+  padding: .625rem .825rem; 
+  border: 1px solid #ddd; 
+  border-left: 0; 
+  font-size: .85rem; 
+}
+
+.sidebar { top: 1.25rem; right: 1.25rem; }
+
+.side-short-component { 
+  height: initial; 
+  max-height: 29.9375rem;
+  top: 20px; 
+  right: 20px; 
+  bottom: initial; 
+}
+
+#colorPalette {    
+    align-content: flex-start; 
+    overflow-y: auto;     
+
+    li { 
+        width: 1.25rem; 
+        height: 1.25rem; 
+        margin: 0 .3rem .3rem 0; 
+        border-radius: .125rem; 
+        border: 2px solid transparent; 
+        cursor: pointer;
+        position: relative; 
+
+        &.checked { 
+            opacity: .2 !important;
+            border-color: #005aa8;
+
+            &::before { 
+                content:''; 
+                display: block; 
+                width: .625rem; 
+                height: .5rem; 
+                border-left: .1875rem solid black; 
+                border-bottom: .1875rem solid black; 
+                transform: rotate(-45deg); 
+                position: absolute; 
+                top: -.25rem; 
+                bottom: 0; 
+                left: 0; 
+                right: 0; 
+                margin: auto; 
+            }
+        }
+    }
+}
+
+ul li a:hover, ul li a:focus {  
+  color:#fff;  
+  border:1px solid #f40;  
+  background-color:#f40;  
+}  

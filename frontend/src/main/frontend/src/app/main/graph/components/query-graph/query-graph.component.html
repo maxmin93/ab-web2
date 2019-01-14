@@ -1,0 +1,467 @@
+  <!-- GRAPH -->
+  <div id="graphCard" class="col flex-1">
+    <div id="progressBarQueryGraph" #progressBar style='visibility:hidden; z-index: 10; width: 100%;'>
+        <mat-progress-bar color="accent" mode="indeterminate">Loading...</mat-progress-bar>
+    </div>
+    <!-- Graph content -->
+    <div class="row flex-1">
+        <div class="col flex-1">
+            <div id="graph-canvas" class="graph-canvas flex-1" #divCanvas
+                (mouseover)="canvasHover=true" (mouseleave)="canvasHover=false"></div>
+            <!-- graph element info Box -->
+            <nav>
+                <!-- 입력상자 : 라벨검색 -->
+                <ng-container *ngIf="btnStatus.showHideTitle">
+                    <div #divFindTitle id="slide-toggle" class="sidebar col">
+                        <h4>find <strong>Title</strong></h4>   
+                        <div class="search mt20">
+                            <span><mat-icon>search</mat-icon></span>
+                            <!-- <div class="strech row-center border-bottom">
+                                <span class="subtitle">Start Node</span>
+                                <span>{{ shortestPathOptions.sid }}</span>
+                            </div> -->
+                            <label>
+                                <input
+                                type='text'            
+                                placeholder='Type to filter label text...'
+                                (keyup)='updateFilterTitle($event)'/>
+                            </label>
+                        </div>
+                        <span id="divFindTitleAll" class="property-name row row-m row-space mt20 mb20"
+                         (click)="focusAllItems()" style="cursor: pointer">
+                          Total Found Elements : <span>{{ labelSearchCount }}</span></span>                       
+                        <div class="title-list flex-1 overflow-y border">
+                          <ul id="divFindTitleSelect" *ngIf="labelSearchCount > 0" >
+                            <li class="row row-m row-space" *ngFor="let item of labelSearchItems; let i = index"
+                              (click)="focusSearchedLabel(item)" style="cursor: pointer">
+                              <span>{{ (item.title.length > 50)? (item.title | slice:0:50)+'..':(item.title) }}</span>
+                            </li>
+                          </ul>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- 출력상자 : Node/Edge 상세 정보 -->
+                <ng-container *ngIf="!!selectedElement">
+                    <div id="slide-toggle" class="sidebar col">
+                        <div class="mb20 row row-c row-space">
+                            <h4>{{ selectedElement.group() || uppercase }} <strong>info</strong></h4>
+                            <mat-slide-toggle *ngIf="selectedElement.isNode()" #nodeLockSlideToggle
+                            [checked]="selectedElement.locked()" (change)="selectedLockToggle(selectedElement)" matTooltip="Location Rock">
+                            </mat-slide-toggle>
+                        </div>
+                        <ul class="property-list col flex-1">
+                            <li class="row row-m row-space"><span>Label</span>{{ selectedElement.data('label') }} [{{ (selectedElement.id().length>8) ? (selectedElement.id() | slice:0:8)+'..' : selectedElement.id() }}]</li>
+                            <!-- <li class="row row-m row-space"><span>Name</span>{{ selectedElement.data('props')['name'] }}</li> -->
+                            <li class="col flex-1">
+                                <span>Data</span>
+                                <div class="json-box col flex-1"><pre [innerHtml]="selectedElement.data('props') | prettyjson:3"></pre></div>
+                            </li>
+                        </ul>
+                    </div>
+                </ng-container>
+
+                <!-- 출력상자 : Label 스타일 정보 -->
+                <ng-container *ngIf="!!selectedLabel && !selectedElement">
+                    <div id="slide-toggle" class="sidebar col side-short-component">
+                        <div class="mb20 row row-m row-space">
+                            <h4><strong>Label</strong> Styles</h4>
+                            <div class="row row-space row-m">
+                                <h5 class="mr10"><strong>Visibility </strong></h5>
+                                <mat-slide-toggle matTooltip="Visibility"
+                                    [checked]="!selectedLabel.scratch._style.hasOwnProperty('visible') || selectedLabel.scratch._style.visible"
+                                    (change)="onChangeStyleVisible($event)">
+                                </mat-slide-toggle>
+                            </div>
+                        </div>
+                        <div class="col flex-2">
+                            <div class="row row-space row-m">
+                                <h5 class="mr20"><strong>SIZE </strong></h5>
+                                <mat-slider *ngIf="selectedLabel.type == 'nodes'" class="flex-1 p-no"
+                                            [min]="10" [max]="120" [step]="5" [thumbLabel]="true"
+                                            [value]="selectedLabel.scratch._style.width"
+                                            (change)="onChangeStyleWidth($event)">
+                                </mat-slider>
+                                <mat-slider *ngIf="selectedLabel.type == 'edges'" class="flex-1 p-no"
+                                            [min]="1" [max]="12" [step]="1" [thumbLabel]="true"
+                                            [value]="selectedLabel.scratch._style.width"
+                                            (change)="onChangeStyleWidth($event)">
+                                </mat-slider>
+                            </div>
+                            <div class="row row-space row-m">    
+                                <h5 class="mr20"><strong>TITLE </strong></h5>
+                                <mat-form-field class="flex-1">
+                                <mat-select [value]="selectedLabel.scratch._style.title"
+                                                (selectionChange)="onChangeStyleTitle($event)" required>
+                                    <mat-option value="_null_">_NONE_</mat-option>
+                                    <mat-option *ngFor="let prop of selectedLabel.properties" [value]="prop.key">{{ prop.key }}</mat-option>
+                                </mat-select>
+                                </mat-form-field>                
+                            </div>
+                            <div *ngIf="selectedLabel.type == 'nodes'" class="row row-space row-m">    
+                              <h5><strong>IMAGE </strong> </h5> &nbsp; &nbsp;
+                              <!-- <div *ngIf="selectedLabel.scratch._style.hasOwnProperty('image')" class="flex-1" 
+                                  style="width:20px; height:20px; background-image: url('{{selectedLabel.scratch._style.image}}')">
+                              </div> -->
+                              <!-- SELECT image -->
+                              <div class="flex-1">
+                                <form class="flex-1">
+                                  <mat-form-field style="width: 120px;">
+                                    <input matInput #imageSelected placeholder="upload image" readonly 
+                                      [value]="selectedLabel.scratch._style['image'] ? selectedLabel.scratch._style['image'] : ''" />
+                                  </mat-form-field>
+                                  &nbsp; &nbsp;
+                                  <input id="file-upload" #imageSelector type="file" style="display:none;" accept="image/*" 
+                                  (change)="importNodeImage(selectedLabel, $event)">
+                                  <button mat-raised-button style="height: 30px;" color="primary" (click)="imageSelector.click()">upload</button>
+                                  <button mat-raised-button style="height: 30px;" (click)="resetNodeImage(selectedLabel)">reset</button>
+                                </form>
+                              </div>
+                            </div>
+                            <div class="col flex-1 mt10 color-box">
+                                <h5><strong>COLOR </strong></h5>
+                                <div class="col mt10 flex-1" id="colorPalette">
+                                <ul class="row wrap">
+                                    <li *ngFor="let c of colorsPallet; let i = index" [attr.data-index]="i"
+                                        [style.background-color]="c.bc" (click)="onChangeStyleColor(i)"
+                                        [style.border-color]="'black'"
+                                        [style.border-width]="(selectedLabel.scratch._style.color && selectedLabel.scratch._style.color.bc == c.bc) ? '2px' : '0px'"
+                                    ></li>
+                                </ul>
+                                </div>
+                                <!-- <div><h6 class="row row-space">Select Color : <span>rgb(255,255,255)</span></h6></div> -->
+                            </div>
+                        </div>
+                        <!-- <ul>
+                            <li><span>Group</span>{{ selectedLabel.type }} (cnt={{ selectedLabel.size }})</li>
+                            <li><span>Name</span>{{ selectedLabel.name }}</li>
+                            <li><span>Properties</span></li>
+                            <li>                                
+                                <table mat-table [dataSource]="selectedLabel.properties">
+                                    <ng-container matColumnDef="propName">
+                                        <th mat-header-cell *matHeaderCellDef> Name </th>
+                                        <td mat-cell *matCellDef="let prop"> {{prop.key}} </td>
+                                    </ng-container>
+                                    <ng-container matColumnDef="propType">
+                                        <th mat-header-cell *matHeaderCellDef> Type </th>
+                                        <td mat-cell *matCellDef="let prop"> {{prop.type}} </td>
+                                    </ng-container>
+                                    <ng-container matColumnDef="propCnt">
+                                        <th mat-header-cell *matHeaderCellDef> Count </th>
+                                        <td mat-cell *matCellDef="let prop"> {{prop.size}} </td>
+                                    </ng-container>
+                                    <tr mat-header-row *matHeaderRowDef="displayedLabelColumns"></tr>
+                                    <tr mat-row *matRowDef="let row; columns : displayedLabelColumns"></tr>
+                                </table>                                
+                            </li>
+                        </ul> -->
+                    </div>
+                </ng-container>
+
+                <!-- 입력상자 : CycleDetection -->
+                <ng-container *ngIf="btnStatus.findCycles">
+                    <div id="slide-toggle" class="col sidebar side-short-component">
+                        <div class="mb15">
+                            <h4>Find <strong>Cycles</strong></h4>
+                            <small>Cycles can see you the starting and<br/>ending points of the node.</small>
+                        </div>
+                        <div>
+                            <ul class="find-cycles">
+                                <li *ngFor="let row of grph_data; let i = index" class="row">
+                                    <span><mat-icon>rotate_right</mat-icon></span>
+                                    <p href="javascript:void(0)" (click)="onClickCyclePath(i)" class="flex-1"> {{ row.join(' > ') }} </p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- 입력상자 : 속성값 centrality -->
+                <ng-container *ngIf="btnStatus.valueCentrality">
+                    <div id="slide-toggle-timeline" class="sidebar col side-short-component">
+                        <div class="mb20">
+                            <h4>by Value <strong>Centrality</strong></h4>
+                        </div>
+                        <div class="col flex-1">
+                            <mat-form-field>
+                                <mat-select placeholder="select Label" 
+                                    [formControl]="timelineLabelCtl">
+                                    <mat-option *ngFor="let label of labels" [value]="label">
+                                    {{label.name}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            
+                            <mat-form-field>
+                                <mat-select placeholder="select Property"
+                                    [formControl]="timelinePropertyCtl" (selectionChange)="onChangeCentralityProperty($event)">
+                                    <mat-option *ngFor="let prop of timelineLabelCtl.value.properties" [value]="prop">
+                                    {{prop.key}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <mat-form-field>
+                                <input matInput type="text" placeholder="Check type"
+                                    [formControl]="timelineSampleCtl" readonly="true">
+                            </mat-form-field>
+                            <button #btnSetTimeline [disabled]="timelineDisabled" mat-flat-button color="primary" (click)="doByValueCentrality()">by Value Centrality</button>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- 입력상자 : 타임라인 timeLine -->
+                <ng-container *ngIf="btnStatus.timeLine">
+                    <div id="slide-toggle-timeline" class="sidebar col side-short-component">
+                        <!-- [style.visibility]="btnStatus.timeLine ? 'visible' : 'hidden'"> -->
+                        <div class="mb20">
+                            <h4>Play <strong>Timeline</strong></h4>
+                        </div>
+                        <div class="col flex-1">
+                            <mat-form-field>
+                                <mat-select placeholder="select Label" 
+                                    [formControl]="timelineLabelCtl">
+                                    <mat-option *ngFor="let label of labels" [value]="label">
+                                    {{label.name}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            
+                            <mat-form-field>
+                                <mat-select placeholder="select Property"
+                                    [formControl]="timelinePropertyCtl" (selectionChange)="onChangeTimelineProperty($event)">
+                                    <mat-option *ngFor="let prop of timelineLabelCtl.value.properties" [value]="prop">
+                                    {{prop.key}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <mat-form-field>
+                                <input matInput type="text" placeholder="Check value" value=""
+                                    [formControl]="timelineSampleCtl" readonly="true">
+                            </mat-form-field>
+    
+                            <mat-form-field>
+                                <input matInput type="text" placeholder="Date format" value="YYYY-MM-DD"
+                                    [formControl]="timelineFormatCtl" (input)="onChangeTimelineFormat($event.target.value)">
+                            </mat-form-field>
+
+                            <button #btnSetTimeline [disabled]="timelineDisabled" mat-flat-button (click)="setTimelineData()">Set Timeline</button>
+
+                            <timeline-slider class="mt20" #timelineSlider
+                                [values]="timeline_data"
+                                [interval]="3000"
+                                (onChange)="onChangeTimelineSlider($event)"
+                                (onUpdate)="onUpdateTimelineSlider($event)"
+                                (onControl)="onControlTimelineSlider($event)"></timeline-slider>
+                            <!-- <mat-slider></mat-slider> -->
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- 입력상자 : 최단 경로 -->
+                <ng-container *ngIf="btnStatus.shortestPath">
+                    <div id="slide-toggle" class="sidebar col side-short-component">
+                        <div class="row row-m row-space mb20"> 
+                            <h4>Find <strong>Shortest Path</strong></h4>
+                            <mat-slide-toggle #slideShortestPathDirected [checked]="shortestPathOptions.directed" matTooltip="directed option">
+                            </mat-slide-toggle>
+                        </div>
+                        
+                        <ul>
+                            <li class="row row-m row-space">
+                                <mat-icon class="mr20">adjust</mat-icon>
+                                <div class="row row-space flex-1 border-bottom p5">
+                                    <span class="tit">Start Node </span>
+                                    <span>{{ shortestPathOptions.sid }}</span>
+                                </div>
+                            </li>
+                            <li class="mt10"><mat-icon>more_vert</mat-icon></li>
+                            <li class="row row-m row-space">
+                                <mat-icon class="mr20">pin_drop</mat-icon>
+                                <div class="row row-space flex-1 border-bottom p5">
+                                    <span class="tit">End Node </span>
+                                    <span>{{ shortestPathOptions.eid }}</span>
+                                </div>
+                            </li>
+                        </ul>                            
+                        
+                        <div class="btn-group mt20 row">
+                            <button class="flex-1" mat-flat-button color="primary" (click)="doFindShortestPath()">search</button>
+                            <button mat-stroked-button color="primary" (click)="clearFindShortestPath()">refresh</button>
+                        </div>
+                        <div class="mt20 row row-space row-m border p10">
+                            <span class="tit">Distance :</span><div *ngIf="shortestPathOptions.distTo"> <strong>{{ shortestPathOptions.distTo }}</strong></div>
+                        </div>
+                    </div>
+                </ng-container>
+            </nav>
+            
+            <!-- Graph.Meta : Labels content -->
+            <mat-chip-list id="agens-graph-labels">
+                <mat-chip *ngFor="let label of labels" [selected]="true"
+                    (click)="clickGraphLabelChip(label)"
+                    [style.background]="label.scratch['_style'].color ? label.scratch['_style'].color.bc : '#a6a6a6'">
+                    <span *ngIf="label.type=='nodes'" class="nodeType" style="font-weight: bold">
+                      <!-- <div *ngIf="label.scratch['_style']['image']" 
+                              style="background-image: url('{{label.scratch['_style']['image']}}'); width:20px; height:20px;"></div> -->
+                        {{label.name}} ({{label.size}})</span>
+                    <span *ngIf="label.type=='edges'" class="edgeType" style="text-decoration: underline">
+                      {{label.name}} ({{label.size}})</span>
+                </mat-chip>
+            </mat-chip-list>
+        </div>
+        <!-- Graph.Meta : toolbar -->
+        <div id="agens-graph-toolbar" class="box-view">
+            <div class="box-scroll">
+                <div class="box-content">
+                    <div class="btn-group btn-group-v">
+                        <a class="checked btn btn-icon" [ngClass]="{ 'checked': btnStatus.editMode }" 
+                            id="btnEditMode" mat-button-toggle #btnEditMode
+                            (click)="toggleEditMode()" matTooltip="edit Mode" matTooltipPosition="before">
+                            <mat-icon>edit</mat-icon></a>
+
+                        <a class="checked btn btn-icon" [ngClass]="{ 'checked': btnStatus.showHideTitle }" 
+                            id="btnShowHideTitle" mat-button-toggle #btnShowHideTitle 
+                            (click)="toggleShowHideTitle()" matTooltip="show/hide Title" matTooltipPosition="before">
+                            <mat-icon>label</mat-icon></a>
+        
+                        <a class="btn btn-icon" [ngClass]="{ 'checked': btnStatus.metaGraph }" 
+                            id="btnResultSearch" mat-button-toggle #btnResultSearch (click)="openFilterNGroupSheet()" 
+                            matTooltip="Filtering & Grouping" matTooltipPosition="before">
+                            <mat-icon>search</mat-icon></a>
+        
+                        <a class="btn btn-icon" [ngClass]="{ 'disabled': isLoading }" [matMenuTriggerFor]="layoutMenu" 
+                            matTooltip="LAYOUT" matTooltipPosition="before"><mat-icon>bubble_chart</mat-icon></a>
+                            <mat-menu #layoutMenu="matMenu" [xPosition]="'before'" [yPosition]="'below'">
+                                <div td-menu-header>
+                                    <h4 class="mat-subhead">Layout <strong>Type</strong></h4>
+                                </div>
+                                <mat-divider></mat-divider>
+                                    <button mat-menu-item (click)="graphChangeLayout('random')">Random (default)</button>
+                                <mat-divider></mat-divider>
+                                    <button mat-menu-item (click)="graphChangeLayout('grid')">Grid</button>
+                                <mat-divider></mat-divider>
+                                    <button mat-menu-item (click)="graphChangeLayout('breadthfirst')">Breadth-first</button>
+                                <mat-divider></mat-divider>
+                                    <button mat-menu-item (click)="graphChangeLayout('concentric')">Concentric</button>
+                                <mat-divider></mat-divider>
+                                    <button mat-menu-item (click)="graphChangeLayout('cola')">Cola</button>
+                                <mat-divider></mat-divider>
+                                    <button mat-menu-item (click)="graphChangeLayout('cose')">Cose</button>
+                                <mat-divider></mat-divider>
+                                    <button mat-menu-item (click)="graphChangeLayout('cose-bilkent')">Cose-Bilkent (slow)</button>
+                                <mat-divider></mat-divider>
+                                    <button mat-menu-item (click)="graphChangeLayout('dagre')">Dagre (hierachy)</button>
+                                <mat-divider></mat-divider>
+                                    <button mat-menu-item (click)="graphChangeLayout('klay')">Klay (hierachy)</button>
+                                <mat-divider></mat-divider>
+                                    <button mat-menu-item (click)="graphChangeLayout('euler')">Euler (very fast)</button>
+                            </mat-menu>
+                        
+        
+                        <a class="btn btn-icon" [ngClass]="{ 'disabled': isLoading }" [matMenuTriggerFor]="centralityMenu" 
+                            matTooltip="Centrality" matTooltipPosition="before">
+                            <mat-icon>control_camera</mat-icon></a>
+                            <mat-menu #centralityMenu="matMenu" [xPosition]="'before'" [yPosition]="'below'">
+                                <div td-menu-header>
+                                    <h4 class="mat-subhead">Centrality <strong>Methods</strong></h4>
+                                </div>
+                                <mat-divider></mat-divider>
+                                    <button mat-menu-item (click)="graphCentrality('reset')">Reset styles</button>
+                                <mat-divider></mat-divider>
+                                    <button mat-menu-item (click)="graphCentrality('betweenness')">Betweenness</button>
+                                <mat-divider></mat-divider>
+                                    <button mat-menu-item (click)="graphCentrality('closeness')">Closeness</button>
+                                <mat-divider></mat-divider>
+                                    <button mat-menu-item (click)="graphCentrality('degree')">Degree</button>
+                                <mat-divider></mat-divider>
+                                    <button mat-menu-item (click)="graphCentrality('pagerank')">PageRank</button>
+                                <mat-divider></mat-divider>
+                                    <button mat-menu-item (click)="graphCentrality('byValue')">by Value</button>
+                            </mat-menu>
+                        
+        
+                        <a class="btn btn-icon" [ngClass]="{ 'checked': btnStatus.neighbors }" id="btnHighlightNeighbors" 
+                            mat-button-toggle #btnHighlightNeighbors (click)="toggleHighlightNeighbors()" 
+                            matTooltip="Highlight Neighbors" matTooltipPosition="before">
+                            <mat-icon id="btnHighlightNeighborsIcon">grain</mat-icon></a>
+        
+                        <a class="btn btn-icon" [ngClass]="{ 'disabled': isLoading }" (click)="openImageExportDialog()" 
+                            matTooltip="Image Export" matTooltipPosition="before">
+                            <mat-icon>image</mat-icon></a>
+        
+                        <a class="btn btn-icon" [ngClass]="{ 'checked': btnStatus.connectedGroup }" (click)="toggleFindConnectedGroup()" 
+                            matTooltip="find Connected Group" matTooltipPosition="before">
+                            <mat-icon>group_work</mat-icon></a>
+        
+                        <a class="btn btn-icon" mat-button-toggle [ngClass]="{ 'checked': btnStatus.shortestPath }" 
+                            #btnShortestPath (click)="toggleFindShortestPath()" 
+                            matTooltip="find Shortest Path" matTooltipPosition="before">
+                            <mat-icon>location_on</mat-icon></a>
+        
+                        <a class="btn btn-icon" [ngClass]="{ 'checked': btnStatus.findCycles }" (click)="toggleFindCycles()" 
+                            matTooltip="find Cycles" matTooltipPosition="before">
+                            <mat-icon>toll</mat-icon></a>
+        
+                        <a class="btn btn-icon" [ngClass]="{ 'checked': btnStatus.timeLine }" (click)="toggleTimeline()" 
+                            matTooltip="play Timeline" matTooltipPosition="before">
+                            <mat-icon>fast_forward</mat-icon></a>                  
+        
+                        <a class="btn btn-icon" [ngClass]="{ 'checked': btnStatus.overlayGraph }" (click)="toggleOverlayGraph()" 
+                            matTooltip="overlay Graph" matTooltipPosition="before">
+                            <mat-icon>compare_arrows</mat-icon></a>
+
+                        <a class="btn btn-icon" [ngClass]="{ 'disabled': isLoading }" (click)="reloadGraph()" 
+                            matTooltip="reload Graph" matTooltipPosition="before">
+                            <mat-icon>refresh</mat-icon></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--
+  /////////////////////////////////////////////////////////////////
+  //
+  //  qtip Menu template : not displayed
+  //
+  /////////////////////////////////////////////////////////////////
+-->
+
+<div id="divCxtMenu" style="display:none;">
+  <h4><strong>CxtMenu</strong></h4>
+  <ul style="border-top: 1px solid;">
+    <li><a href="javascript:void(0)" onclick="(window['angularComponentRef'].qtipCxtMenu)('selectAll')">select All</a></li>
+    <li><a href="javascript:void(0)" onclick="(window['angularComponentRef'].qtipCxtMenu)('toggleSelection')">toggle Selection</a></li>
+    <li><a href="javascript:void(0)" onclick="(window['angularComponentRef'].qtipCxtMenu)('remove')">remove</a></li>
+  </ul>
+  <ul style="border-top: 1px solid;">
+    <li><a href="javascript:void(0)" onclick="(window['angularComponentRef'].qtipCxtMenu)('copy')">copy (Ctrl+C)</a></li>
+    <li><a href="javascript:void(0)" onclick="(window['angularComponentRef'].qtipCxtMenu)('cut')">cut (Ctrl+X)</a></li>
+    <!-- <li *ngIf="ur && ur.clipboard && ur.clipboard['nodes']">       // 왜 안되지?? (_cd 써도 안됨) -->
+    <li>
+      <a href="javascript:void(0)" onclick="(window['angularComponentRef'].qtipCxtMenu)('paste')">paste (Ctrl+V)</a>
+    </li>
+  </ul>
+    <!-- <li><a href="javascript:void(0)" onclick="(window['angularComponentRef'].qtipCxtMenu)('showAll')">show All</a></li> -->
+    <!-- <li><a href="javascript:void(0)" onclick="(window['angularComponentRef'].qtipCxtMenu)('makeInvisible')">make Invisible</a></li> -->
+  <ul style="border-top: 1px solid;">
+    <li><a href="javascript:void(0)" onclick="(window['angularComponentRef'].qtipCxtMenu)('grouping')">grouping</a></li>
+    <li><a href="javascript:void(0)" onclick="(window['angularComponentRef'].qtipCxtMenu)('degrouping')">degrouping</a></li>
+  </ul>
+</div>
+
+<!--
+// **NOTE: element를 물고 들어갈 수 없음. 단지 canvas냐 element냐 에 따라 메뉴 항목만 달라질 뿐.
+//         ==> 의미 없음. 주석처리!! (2018-10-15)
+<div id="divEleMenu" style="display:none;">
+  <h4><strong>EleMenu</strong></h4><hr/>
+  <ul>
+    <li><a href="javascript:void(0)" onclick="(window['angularComponentRef'].qtipEleMenu)('edit', this)">edit Element</a></li>
+    <li><a href="javascript:void(0)" onclick="(window['angularComponentRef'].qtipEleMenu)('remove', this)">remove Element</a></li>
+    <li><a href="javascript:void(0)" onclick="(window['angularComponentRef'].qtipEleMenu)('remove', this)">grouping</a></li>
+    <li><a href="javascript:void(0)" onclick="(window['angularComponentRef'].qtipEleMenu)('remove', this)">de-grouping</a></li>
+  </ul>
+</div>
+-->

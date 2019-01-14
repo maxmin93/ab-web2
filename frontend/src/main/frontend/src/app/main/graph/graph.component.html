@@ -1,0 +1,86 @@
+<div id="top" class="content col">
+
+    <!-- /////////////////////////////  
+        query card 
+    ///////////////////////////// -->
+
+    <div id="queryCard" [ngClass]="{'flex-1':isExpanded}" class="card col flex-1">
+        <div class="card-header row row-m row-space">
+          <h4 class="row row-m">
+            <mat-icon class="mr10">code</mat-icon><span class="row row-b"> Query <strong>Editor </strong> <small> (Cypher or Ansi-SQL)</small></span>
+          </h4>
+          <div class="btn-group">
+            <button color="primary" mat-button [disabled]="isLoading || currentTabIndex != 0" (click)="runQuery()"
+                matTooltip="run Query" matTooltipPosition="above">Run</button>
+            <button color="primary" mat-button [disabled]="!isLoading || currentTabIndex != 0" (click)="stopQuery()"
+                matTooltip="stop Execution" matTooltipPosition="above">Stop</button>
+            <button color="primary" mat-button [disabled]="isLoading || currentTabIndex != 0" (click)="clearProject()"
+                matTooltip="new Project" matTooltipPosition="above">New</button>
+            <button color="primary" mat-button [disabled]="isLoading || currentTabIndex != 0" (click)="uploader.click()"
+                matTooltip="import graphjson" matTooltipPosition="above">Import</button>
+            <button color="primary" mat-button [disabled]="isLoading || currentTabIndex != 0" (click)="exportGraph('json')"             
+                matTooltip="export graphjson" matTooltipPosition="above">Export</button>
+              <!-- <mat-menu #exportMenu="matMenu" [yPosition]="'below'">
+                  <div td-menu-header><h4 class="mat-subhead">format</h4></div>
+                  <mat-divider></mat-divider>
+                      <button mat-menu-item (click)="exportGraph('json')">graphson (JSON)</button>
+                  <mat-divider></mat-divider>
+                      <button mat-menu-item (click)="exportGraph('xml')">graphml (XML)</button>
+              </mat-menu> -->
+            <button color="primary" mat-button [disabled]="isLoading || currentTabIndex != 0" (click)="openProjectOpenDialog()"
+                matTooltip="open Project" matTooltipPosition="above">Load</button>
+            <button color="primary" mat-button [disabled]="isLoading || currentTabIndex != 0" (click)="openProjectSaveDialog()"
+                matTooltip="save Project" matTooltipPosition="above">Save</button>
+                
+            <input hidden type="file" #uploader (change)="importFile($event)" />
+            <!-- accept="text/xml,application/json"/> --> <!-- only graphml, graphson -->
+          </div>
+        </div>
+        <div class="card-content">
+          <!-- REQUEST : cypher query -->
+          <form class="col border" [ngClass]="{'flex-1':isExpanded}">
+            <textarea id="agensQuery" #queryEditor type="text" name="query"></textarea>
+          </form>
+        </div>
+    </div>
+    
+    <!-- RESULT : progress-bar & message -->
+    <app-query-result #queryResult class="col" [ngClass]="{'flex-1':isExpanded}"></app-query-result>
+
+
+    <!-- /////////////////////////////  
+        expand toggle btn 
+    ///////////////////////////// -->
+
+    <div class="row row-c">
+        <a class="btn btn-link" (click)="toggleExpandEditor()"
+            [matTooltip]="isExpanded ? 'compress':'expand'" matTooltipPosition="above"
+            >
+            <!-- [style.background-color]="isExpanded ? '#afafaf' : '#303F9F'" -->
+            <mat-icon *ngIf="!isExpanded">expand_more</mat-icon>
+            <mat-icon [style.color]="'red'" *ngIf="isExpanded">expand_less</mat-icon>
+        </a>
+    </div>
+
+    <!-- /////////////////////////////  
+        tab card 
+    ///////////////////////////// -->
+
+    <div id="tabComponent" class="col card card-space-no" [style.flex]="isExpanded ? 0 : 1"> 
+        <mat-tab-group #resultTapGroup [selectedIndex]="currentTabIndex" class="mat-tab-vertical md-no-animation" disableRipple
+            (selectedTabChange)="tabChanged($event)" (animationDone)="tabAnimationDone()">
+            <mat-tab label="Graph">
+                <!-- GRAPH(0) -->
+                <app-query-graph #queryGraph (initDone)="initCallbackData($event)"></app-query-graph>
+            </mat-tab>
+            <mat-tab label="Table" [disabled]="false"> 
+                <!-- TABLE(1) -->
+                <app-query-table #queryTable></app-query-table>
+            </mat-tab>
+            <mat-tab label="Meta" [disabled]="false">
+                <!-- STATIC(2) -->
+                <app-stat-graph #statGraph (initDone)="initCallbackStat($event)"></app-stat-graph>
+            </mat-tab>
+        </mat-tab-group>
+    </div>
+</div>

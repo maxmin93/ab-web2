@@ -1,0 +1,154 @@
+<div id="top" class="content col">
+    <div class="row flex-1">
+        
+        <div class="col mr20" id="dataSourceLabel">
+
+            <!-- /////////////////////////////  
+                data source card 
+            ///////////////////////////// -->
+
+            <div class="card col mb20" id="dataInfo">
+                <div class="card-header">
+                    <h4 class="row row-m"><mat-icon class="mr10">data_usage</mat-icon>DATA <strong> SOURCE</strong></h4>
+                    <p>AgensBrowser visualizes data as graphs and tables for easier, enhanced understanding and analyzing of data.</p>
+                </div>
+                <div class="card-content">
+                    <ul class="list">
+                        <li title={{infos.uri}}><span class="property-name mr15"> URL</span><p class="property-value">{{infos.uri}}</p></li>
+                        <li title={{infos.name}}><span class="property-name mr15"> NAME</span><p class="property-value">{{infos.name}} (owner: '{{infos.owner}}')</p></li>
+                        <li title={{infos.desc}}><span class="property-name mr15"> DESC</span><p class="property-value">{{infos.desc}}</p></li>
+                    </ul>
+                </div>
+                <!--
+                <div class="card-dash-number">
+                    <p><span>Total NodeTypes</span><b>{{ infos.nodes_size_total }} ({{ infos.nodes_size_data }})</b></p>
+                    <p><span>Total EdgeTypes</span><b>{{ infos.edges_size_total }} ({{ infos.edges_size_data }})</b></p>
+                </div>
+                -->
+            </div>
+            
+            <!-- /////////////////////////////
+                label list card 
+                ///////////////////////////// -->
+                
+            <div class="card col flex-1">                    
+                <div class="card-header">
+                    <h4 class="row row-m"><mat-icon class="mr10">bookmarks</mat-icon>LABEL <strong> LIST</strong></h4>
+                </div>
+                <div class="card-content">
+                    <ngx-datatable #tableLabels class="material flex-1"
+                        [columnMode]="'force'" [limit]="10"
+                        [rows]='tableLabelsRows' [columns]='tableLabelsColumns'
+                        [footerHeight]="48" [rowHeight]="'auto'"
+                        [selected]="selectedLabels" [selectionType]="'single'"
+                        (select)="onSelectTableLabels($event)"
+                        >
+                        <ngx-datatable-column name="Type" ></ngx-datatable-column>
+                        <ngx-datatable-column name="ID" ></ngx-datatable-column>
+                        <ngx-datatable-column name="Name"  ></ngx-datatable-column>
+                        <ngx-datatable-column name="Size" >
+                            <ng-template let-row="row" ngx-datatable-cell-template>
+                                <span>{{row.size | number}}</span>
+                            </ng-template>
+                        </ngx-datatable-column>
+                        <!-- <ngx-datatable-column name="Volume" [width]="40"></ngx-datatable-column> -->
+                        <ngx-datatable-column name="Delete" [sortable]="false">
+                            <ng-template let-row="row" ngx-datatable-cell-template>
+                                <a class="btn btn-link" (click)="openConfirmDeleteLabelDialog(row)" mdTooltip="Delete" mdTooltipPosition="before">
+                                    <mat-icon>delete</mat-icon>
+                                </a>
+                            </ng-template>
+                        </ngx-datatable-column>            
+                    </ngx-datatable>
+                </div>
+            </div> 
+        </div>
+
+        <div class="row" id="dashboard-canvas">
+
+            <!-- /////////////////////////////graph card ///////////////////////////// -->
+
+            <div class="row card mr20" id="dashGraphCard">
+                <div class="card-header pos-abs">
+                  <div #progressBar style='visibility:hidden; z-index: 10; width: 100%;'>
+                    <mat-progress-bar color="accent" mode="indeterminate">Loading...</mat-progress-bar>
+                  </div>
+                  <h4 class="row row-m"><mat-icon class="mr10">bubble_chart</mat-icon>SCHEMA <strong> GRAPH</strong></h4>
+                    <!-- <p>If there is no real data,<br/>the edge(relation between nodes) may not be visible.</p> -->
+                </div>
+                <div class="card-content row flex-1">
+                    <div id="div-canvas" #divCanvas class="graph-canvas flex-1"></div>
+                </div>
+                <div class="box-view">
+                    <div class="box-scroll">
+                        <div class="box-content">
+                            <div class="btn-group btn-group-v">
+                                <!-- <a class="btn btn-icon" (click)="createNode()" matTooltip="create NODE" matTooltipPosition="before"><mat-icon>add</mat-icon></a> -->
+                                <a class="btn btn-icon" [ngClass]="{'checked':btnStatus.edit}" (click)="toggleEditEdge()" matTooltip="edit Schema" matTooltipPosition="before"><mat-icon>edit</mat-icon></a>
+                                <a class="btn btn-icon" [ngClass]="{'checked':btnStatus.delete}" (click)="toggleDeleteElement()" matTooltip="Delete" matTooltipPosition="before"><mat-icon>delete_outline</mat-icon></a>
+                                <a class="btn btn-icon" (click)="refreshCanvas()" matTooltip="refresh Canvas" matTooltipPosition="before"><mat-icon>refresh</mat-icon></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- /////////////////////////////label info card///////////////////////////// -->
+
+            <div class="col" id="dashGraphList">
+                <div class="card col flex-1" id="schemaList">
+                    <div class="card-header">
+                        <h4 class="row row-m"><mat-icon class="mr10">info</mat-icon>Label <strong> Info.</strong></h4>
+                    </div>
+                    <div class="card-content">
+                        <form class="col">
+                            <mat-form-field>
+                                <input matInput placeholder="Label TYPE" readonly="true" 
+                                [value]="selectedLabel ? selectedLabel.type : ''">
+                            </mat-form-field>
+                            <mat-form-field >
+                                <input matInput placeholder="Label ID" readonly="true" 
+                                [value]="selectedLabel ? selectedLabel.id : ''">
+                            </mat-form-field>
+                            <mat-form-field>
+                                <input matInput #labelNameCtl placeholder="Label NAME" required
+                                (keyup)="changeLabelValues($event.target)" 
+                                [value]="selectedLabel ? selectedLabel.name : ''" >
+                            </mat-form-field>
+                            <mat-form-field>
+                                <input matInput placeholder="Label OWNER" readonly="true" 
+                                [value]="selectedLabel ? selectedLabel.owner : ''">
+                            </mat-form-field>
+                            <mat-form-field>
+                                <input matInput placeholder="Label SIZE" readonly="true" 
+                                [value]="selectedLabel ? selectedLabel.size : ''">
+                            </mat-form-field>
+                            <mat-form-field>
+                                <input matInput placeholder="Label VOLUME" readonly="true" 
+                                [value]="selectedLabel ? selectedLabel.volume : ''">
+                            </mat-form-field>
+                            <!-- <mat-form-field>
+                                <textarea matInput #labelDescCtl placeholder="Label DESCRIPTION"
+                                matTextareaAutosize matAutosizeMinRows=3 matAutosizeMaxRows=5
+                                (keyup)="changeLabelValues($event.target)" style="border: 2px solid black"
+                                [value]="selectedLabel ? selectedLabel.desc : ''"></textarea>
+                            </mat-form-field> -->
+                            <mat-form-field>
+                                <textarea matInput #labelDescCtl placeholder="Label DESCRIPTION"
+                                matTextareaAutosize matAutosizeMaxRows=5
+                                (keyup)="changeLabelValues($event.target)" 
+                                [value]="selectedLabel ? selectedLabel.desc : ''"></textarea>
+                            </mat-form-field>
+                        </form>
+                    </div>
+                    <div class="card-footer col">
+                        <button #btnSave mat-raised-button (click)="saveElement()" color="primary" [disabled]="!btnStatus.save">
+                            <!-- <mat-icon class="mr10" [style.color]="btnStatus.save ? '#303F9F':'#afafaf' ">save</mat-icon><Strong>SAVE</Strong> -->
+                            <Strong>SAVE</Strong>
+                        </button>
+                    </div>
+                </div>
+            </div> 
+        </div>  
+    </div>
+</div>

@@ -1,0 +1,119 @@
+<!-- Node/Edge Editor
+     1) select LABEL     
+     2) edit JSON (props)
+     3) if created, call API of TP Sync (about create) => id
+-->
+<div id="graphCard" class="col flex-1 p20">
+  <div class="mb20 row row-c row-space">
+    <div class="dialog-tit">
+      <span><mat-icon>edit</mat-icon></span>
+      <h4>{{ element.group | uppercase }} <strong>Editor</strong></h4>
+    </div>
+  </div>
+  <div class="detail_list row flex-1">
+    <div class="form-group">
+      <div class="input-block">
+        <h5>ID</h5>
+        <mat-form-field class="col">
+          <input matInput [value]="element.data.id" readonly="true">
+        </mat-form-field>
+      </div>
+      <div *ngIf="element.group == 'edges'" class="input-block">
+          <h5>source-node ID</h5>
+          <mat-form-field class="col">
+            <input matInput [value]="element.data.source" readonly="true">
+          </mat-form-field>
+        </div>
+      <div *ngIf="element.group == 'edges'" class="input-block">
+          <h5>target-node ID</h5>
+          <mat-form-field class="col">
+            <input matInput [value]="element.data.target" readonly="true">
+          </mat-form-field>
+        </div>
+      <div class="input-block">
+        <h5>Label</h5>
+        <mat-form-field>
+          <!-- case : old element -->
+          <input matInput *ngIf="!created" [value]="element.data.label" type="text" readonly="true">
+          <!-- case : new element -->
+          <input matInput *ngIf="created" placeholder="label name" [formControl]="editLabelCtl" 
+              [matAutocomplete]="autoSelector">
+          <mat-autocomplete #autoSelector="matAutocomplete">
+            <mat-option *ngFor="let label of labels" [value]="label.name">
+              {{label.name}}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
+    </div>
+    
+    <div class="col flex-1">
+      <h5>Properties</h5>
+      <!-- <div class="json-box col flex-1">
+        <pre [innerHtml]="element.data.props | prettyjson:3"></pre>
+      </div> -->
+      <ngx-datatable #tblProperties class="material"
+        [headerHeight]="50" [limit]="5" [columnMode]="'force'"
+        [footerHeight]="50" [rowHeight]="'auto'" [rows]="properties">
+
+        <ngx-datatable-column name="key" [sortable]="false" [width]="120">
+          <ng-template ngx-datatable-cell-template let-rowIndex="rowIndex" let-value="value" let-row="row">
+            <span title="Double click to edit"
+              (dblclick)="editing[rowIndex + '-key'] = (row.state == 'new') ? true : false"
+              *ngIf="!editing[rowIndex + '-key']">
+              {{value}}
+            </span>
+            <input autofocus (blur)="updateValue($event, 'key', rowIndex)"
+              *ngIf="editing[rowIndex+ '-key']" type="text" [value]="value"
+            />
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="value" [sortable]="false" [width]="220">
+          <ng-template ngx-datatable-cell-template let-rowIndex="rowIndex" let-row="row" let-value="value">
+             <span title="Double click to edit"
+              (dblclick)="editing[rowIndex + '-value'] = true"
+              *ngIf="!editing[rowIndex + '-value']">
+              {{value}}
+            </span>
+            <input autofocus (blur)="updateValue($event, 'value', rowIndex)"
+              *ngIf="editing[rowIndex+ '-value']" type="text" [value]="value"
+            />
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="type" [sortable]="false" [width]="90">
+          <ng-template ngx-datatable-cell-template let-rowIndex="rowIndex" let-row="row" let-value="value">
+            <span title="Double click to edit"
+              (dblclick)="editing[rowIndex + '-type'] = (row.state == 'new') ? true : false"
+              *ngIf="!editing[rowIndex + '-type']">
+              {{value}}
+            </span>
+              <select
+                *ngIf="editing[rowIndex + '-type']"
+                (blur)="editing[rowIndex + '-type'] = false"
+                (change)="updateValue($event, 'type', rowIndex)"
+                [value]="value">
+                <option value="STRING">string</option>
+                <option value="NUMBER">number</option>
+                <option value="ARRAY">array</option>
+                <option value="OBJECT">object</option>
+                <option value="BOOLEAN">boolean</option>
+              </select>
+            </ng-template>
+          </ngx-datatable-column>
+          <!-- delete icon -->
+          <ngx-datatable-column name="del" [sortable]="false" [width]="60">
+            <ng-template let-rowIndex="rowIndex" let-row="row" ngx-datatable-cell-template>
+                <a class="btn btn-link" (click)="openConfirmDeleteRow(rowIndex)" mdTooltip="Delete" mdTooltipPosition="before">
+                    <mat-icon>delete</mat-icon>
+                </a>
+            </ng-template>
+          </ngx-datatable-column>       
+
+      </ngx-datatable>        
+    </div>
+  </div>
+  <div class="btn-group row row-r">
+    <button mat-stroked-button color="primary" (click)="addNewProperty()">add Property</button>
+    <button mat-flat-button color="primary" [disabled]="!changed" (click)="close()">Update</button>
+  </div>
+</div>

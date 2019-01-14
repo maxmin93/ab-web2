@@ -1,0 +1,22 @@
+
+// :host /deep/ { }
+
+/* you can set the disabled style how you like on the text/icon */
+.cxtmenu-disabled { opacity: 0.333;}
+
+#dashboard-canvas .card-header {
+    top: 1.25rem; 
+    left: 1.25rem; 
+    z-index: 10000;
+}
+
+#dataSourceLabel, 
+#dashGraphList { width: 30%; }
+
+#dashboard-canvas, #dashGraphCard { width: 70%; }
+
+#dashGraphCard { padding: 0; position: relative; }
+
+
+
+ 

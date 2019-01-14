@@ -1,0 +1,54 @@
+#graph-canvas {
+  background: '#FFFFFF';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+}
+
+.report-wrapper {
+  font-family: 'Noto Sans', sans-serif; 
+}
+
+.sidebar { top: 1.25rem; right: 1.25rem; }
+
+.hiddenLabelToggle { 
+  position: absolute;
+  top: 15rem;
+  left: 0.5rem;
+  width: 64px;
+  height: 64px;
+}
+
+.side-short-component { 
+  top: 20px; 
+  right: 20px; 
+  bottom: initial; 
+}
+
+.loader {
+  position: absolute;
+  top: calc(50% - 32px);
+  left: calc(50% - 92px);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  perspective: 800px;
+}
+
+.progress-wrapper {
+  position: relative;
+  margin: 20px auto;
+  font-size: 20px;
+}
+
+round-progress { 
+  margin: auto;
+}
+
+ul li a:hover, ul li a:focus {  
+  color:#fff;  
+  border:1px solid #f40;  
+  background-color:#f40;  
+}  

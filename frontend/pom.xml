@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>net.bitnine.agensbrowser.web</groupId>
+	<artifactId>agens-browser-web-frontend</artifactId>
+	<version>2.0</version>
+
+	<name>agens-browser-web-frontend</name>
+	<description>Frontend project of AgensBrowser Bundle</description>
+
+	<parent>
+		<groupId>net.bitnine.agensbrowser.web</groupId>
+		<artifactId>agens-browser-web-parent</artifactId>
+		<version>2.0</version>
+	</parent>
+
+	<build>
+    <plugins>
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>1.6</version>
+
+        <configuration>
+          <nodeVersion>v10.8.0</nodeVersion>
+          <npmVersion>6.4.1</npmVersion>
+          <nodeDownloadRoot>http://nodejs.org/dist/</nodeDownloadRoot>
+          <!--<nodeDownloadRoot>https://cnpmjs.org/mirrors/node/latest/</nodeDownloadRoot>-->
+          <npmDownloadRoot>http://registry.npmjs.org/npm/-/</npmDownloadRoot>
+          <workingDirectory>src/main/frontend</workingDirectory>
+        </configuration>
+
+        <executions>
+          <execution>
+            <id>install node and npm</id>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>npm install</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>install --no-audit</arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>npm run build</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>run build</arguments>
+            </configuration>
+          </execution>
+
+	      </executions>
+      </plugin>
+		</plugins>
+
+	  <resources>
+	    <resource>
+	      <directory>target/frontend</directory>
+	      <targetPath>static</targetPath>
+	    </resource>
+	  </resources>
+        
+	</build>
+
+</project>

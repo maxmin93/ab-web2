@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>AgensWeb</title>
+  <base href="/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="assets/icons/favicon-bn.ico">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-103068391-3"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-103068391-3', {
+      'app_name': 'AgensBrowser-web', 
+      'app_version': 'v2',
+      'custom_map': {'dimension1':'ssid'},
+      'send_page_view': false
+    });
+  </script>
+
+</head>
+<body oncontextmenu="return false;">
+  <app-root>
+    <div style="width: 138px; height: 32px; position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: auto;">
+        <img src="assets/images/logo_32px.png" style="width: 100%;">
+        <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+    </div>    
+  </app-root>
+</body>
+
+</html>
