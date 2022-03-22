@@ -146,7 +146,7 @@ ORDER BY l.labid;
                 + " case when l.labkind='e' then 'edges' else 'nodes' end as la_type,"
                 + " pg_catalog.pg_get_userbyid(c.relowner) as la_owner,"
                 + " coalesce(null, pg_catalog.obj_description(l.oid, 'ag_label'), '') as la_desc,"
-                + " pg_size_pretty(pg_total_relation_size( l.labname::varchar )) as la_volm,"
+                + " pg_size_pretty(pg_total_relation_size( concat( g.graphname::varchar, concat( '.'::varchar, l.labname::varchar )) )) as la_volm,"
                 + " coalesce(null, u.n_live_tup, 0) as la_size"
                 + " FROM pg_catalog.ag_label l"
                 + " INNER JOIN pg_catalog.ag_graph g ON g.oid = l.graphid"
