@@ -84,7 +84,23 @@ public class SchemaDao {
     }
 
     /*
-﻿SELECT g.nspid as gr_oid, g.graphname as gr_name,
+-- GRAPH : list graphs and volume
+SELECT g.nspid as gr_oid, g.graphname as gr_name,
+    pg_catalog.pg_get_userbyid(nspowner) as gr_owner,
+    coalesce(null, pg_catalog.obj_description(g.nspid), '') as gr_desc,
+    sum(
+        pg_total_relation_size(quote_ident(g.graphname) || 
+        '.' || quote_ident(t.tablename))
+        )::bigint as gr_volm
+FROM pg_catalog.ag_graph g
+    LEFT JOIN pg_catalog.pg_namespace n on n.nspname = g.graphname
+    LEFT JOIN pg_tables t on t.schemaname = g.graphname
+GROUP BY
+    gr_oid, gr_name, gr_owner, gr_desc
+;
+
+-- specific graph    
+SELECT g.nspid as gr_oid, g.graphname as gr_name,
     pg_catalog.pg_get_userbyid(nspowner) as gr_owner,
     coalesce(null, pg_catalog.obj_description(g.nspid), '') as gr_desc
 FROM pg_catalog.ag_graph g
@@ -129,7 +145,9 @@ SELECT l.labid as la_oid, l.labname as la_name,
 	case when l.labkind='e' then 'edge' else 'node' end as la_type,
     pg_catalog.pg_get_userbyid(c.relowner) as la_owner,
     coalesce(null, pg_catalog.obj_description(l.oid, 'ag_label'), '') as la_desc,
-    pg_size_pretty(pg_total_relation_size( l.labname::varchar )) as la_volm,
+    pg_size_pretty( pg_total_relation_size( 
+        concat( g.graphname::varchar, concat( '.'::varchar, l.labname::varchar )) 
+        )) as la_volm,
     coalesce(null, u.n_live_tup, 0) as la_size
 FROM pg_catalog.ag_label l
     INNER JOIN pg_catalog.ag_graph g ON g.oid = l.graphid
@@ -191,7 +209,7 @@ limit 1;
 
 // 코멘트 붙이기
 // ** 참고 : 스키마, 테이블과 컬럼까지도 되지만 AgensGraph에서는 vlabel, elabel (테이블 레벨)만 가능
-﻿comment on vlabel top_user is 'TEST comment';
+comment on vlabel top_user is 'TEST comment';
  */
     public LabelType getLabelType(String type, String labelName) {
 
@@ -235,8 +253,8 @@ limit 1;
     }
 
 /*
-﻿SELECT count(properties) as tot_cnt
-	, ﻿coalesce( sum(case when properties = '{}' then 0 else 1 end), -1) as json_cnt
+SELECT count(properties) as tot_cnt
+	, coalesce( sum(case when properties = '{}' then 0 else 1 end), -1) as json_cnt
 from imdb_graph.keyword
  */
     public Long getLabelCount(String label) throws SQLException {
@@ -265,7 +283,7 @@ from imdb_graph.keyword
     }
 
 /*
-﻿SELECT json_data.key as json_key,
+SELECT json_data.key as json_key,
 	jsonb_typeof(json_data.value) as json_type,
 	count(*) as key_count
 FROM imdb_graph.keyword, jsonb_each(imdb_graph.keyword.properties) AS json_data
@@ -275,7 +293,7 @@ order by 1, 2;
 
 전체 레코드를 읽으면 서버에 부담이 크다. 매뉴얼에 기술하고 최신 1만개만 읽는 것으로 수정
 ==>
-﻿SELECT json_data.key as json_key,
+SELECT json_data.key as json_key,
 	jsonb_typeof(json_data.value) as json_type,
 	count(*) as key_count
 FROM ( select properties from imdb_graph.actor_in where
